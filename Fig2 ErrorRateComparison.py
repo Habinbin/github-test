@@ -139,7 +139,8 @@ cbar_width =  0.015 #vertical
 cbar_height = 0.015 #horizontal  
 cbar_dist_v = 0.085; # vertical colorbar distance from bbox edge
 cbar_dist_h = 0.028; # horizontal colorbar distance from bbox edge
-
+# blarblar
+asdf = "cnrkgoTe"
 # horizontal colorbars 
 # colorbar1 temperature 
 bbox1 = ax[0,0].get_position() # get the normalized axis original position 

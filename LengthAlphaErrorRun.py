@@ -92,14 +92,6 @@ def Aver2row(arr): # Average to row side
     rowAverArr = np.array([(arrInv[:,i]+arrInv[:,i+1])/2 for i in range(row-1)])
     return rowAverArr # row averaged array
 
-A = np.array([[1,2,3],[4,5,6],[7,8,9],[10,11,12]])
-A[0,1:3] = np.array([3,6])
-A
-A.shape[0] # row 4
-A.shape[1] # col 3
-Aver2col(A)[0,1:2]
-Aver2row(A)
-
 # Unit change 
 d2h = 24
 h2m = 60
@@ -132,7 +124,7 @@ T0 = LBC.copy() #Environment temperature
 # System thermal diffusivity [m^2/s] 
 min_alpha = 2e-7 #Minimum thermal diffusivity[m^2/s]
 max_alpha = 5e-6 #Maximum thermal diffusivity[m^2/s]
-interval_alpha = 2e-7 #Interval thermal diffusivity[m^2/s]
+interval_alpha = 1e-7 #Interval thermal diffusivity[m^2/s]
 alpha = np.arange(min_alpha,max_alpha,interval_alpha) #Thermal diffusivity
 Nalpha = len(alpha)
 
@@ -142,7 +134,7 @@ C_arr = k_arr/alpha #Volumetric heat capacity
 # System length [m]
 min_L = 0.02 #Minimum length[m]
 max_L = 0.5 #Maximum length[m]
-L_interval = 0.02 #Interval length[m]
+L_interval = 0.01 #Interval length[m]
 L = np.arange(min_L,max_L+L_interval,L_interval)
 NL = len(L)
 

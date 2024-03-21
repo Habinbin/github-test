@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.colors as mcolors
 from scipy.interpolate import interp2d
+from scipy.ndimage.filters import gaussian_filter
 warnings.filterwarnings("ignore")
 def cm2in(cm):
     return cm/2.54
@@ -31,8 +32,7 @@ cm2m = 1/100
 
 # read the csv file
 Z = pd.read_csv("PercentageError.csv") # read the csv file
-# Z = Z.iloc[::-1,:] # reverse the row order
-# Z.reset_index(drop=True, inplace=True) # reset the index
+Z = gaussian_filter(Z, sigma=1)
 
 # figure settings
 min_L = 2
@@ -54,7 +54,7 @@ x = np.linspace(min_L,max_L,Z.shape[0])
 y = np.linspace(min_alpha,max_alpha,Z.shape[1])
 
 # 2D interpolation
-f = interp2d(x, y, Z, kind='linear')
+f = interp2d(x, y, Z, kind='cubic')
 
 # x, y grid 
 x1 = np.linspace(x.min(), x.max(), 75)
@@ -64,12 +64,10 @@ X1,Y1 = np.meshgrid(x1, y1)
 
 Z1 =f(x1,y1)
 
+
+# figure settings
 fig, ax = plt.subplots(nrow, ncol, sharex=False, sharey=False, figsize=(cm2in(19),cm2in(15)), 
                         facecolor='w', edgecolor='k', squeeze=False, dpi = 300)
-
-ef1 = ax[0,0].imshow(Z1, aspect='auto', extent=[1,51,5.1,0.1], 
-                     cmap='Blues9', norm=norm1, alpha=1.0, interpolation = "spline16") # Error field  interpolation = "spline16" 
-
 
 xmin = [2]*nfigs
 xmax = [50]*nfigs
@@ -86,8 +84,11 @@ for ridx in range(nrow):
     for cidx in range(ncol):
         idx = ridx*ncol + cidx
 
+        ef1 = ax[ridx,cidx].imshow(Z1, aspect='auto', extent=[1,51,5.1,0.1], 
+                            cmap='Blues9', norm=norm1, alpha=1.0, interpolation = "spline16") # Error field  interpolation = "spline16" 
+        
         ax[ridx,cidx].set_xlabel('System length [cm]', fontsize=FS_label,labelpad=10)
-        ax[0,0].set_ylabel('Thermal diffusivity [10$^{-6}$ m$^2$/s]', fontsize=FS_label,labelpad=10)
+        ax[ridx,cidx].set_ylabel('Thermal diffusivity [10$^{-6}$ m$^2$/s]', fontsize=FS_label,labelpad=10)
 
         ax[ridx,cidx].tick_params(direction='in', labelsize=Axis_FS, which='major', length=2.5, width=0.5 ,  right=True,top=True ,pad=6)
         ax[ridx,cidx].tick_params(direction='in', labelsize=Axis_FS, which='minor', length=1.25, width=0.25, right=True,top=True ,pad=6)
@@ -129,7 +130,7 @@ for ridx in range(nrow):
 
 # 등고선 그리기
 contour_levels = [int(5)]+ [int(10*(i+1)) for i in range(8)]
-contour = plt.contour(X1, Y1, Z1, levels=contour_levels, colors='0.1', linewidths=0.75, linestyles='-')
+contour = plt.contour(X1, Y1, Z1, levels=contour_levels, colors='0.1', linewidths=0.75,)
 plt.clabel(contour, fontsize=fs-2, fmt = '%1.0f')
 plt.tight_layout(pad = 1.7)
 fig.subplots_adjust(right=0.85, bottom=0.12) # make space for additional colorbar

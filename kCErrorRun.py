@@ -24,6 +24,7 @@ class SetConstruction:
         self.layers = layers
         self.N = sum([Lidx.div for Lidx in layers])
         self.construction = list(layers)
+
     def dx(self):
         N = self.N
         Construction = self.construction
@@ -70,27 +71,34 @@ class SetConstruction:
 def D2K(Degree): #Degree to Kelvin
     Kelvin = Degree + 273.15
     return Kelvin
+
 def K2D(Kelvin): #Kelvin to Degree
     Degree = Kelvin - 273.15
     return Degree
+
 def arr2df(arr): # Array to DataFrame
     df = pd.DataFrame(arr)
     return df
+
 def cm2in(cm): # cm to inch
     inch = cm/2.54
     return inch
+
 def hftlist(lst): # Half time step list
     hflst = [(lst[i]+lst[i+1])/2 for i in range(len(lst)-1)]
     return hflst
+
 def Aver2col(arr): # Average to column side
     col = arr.shape[1] # Number of row(time step)
-    colAverArr = np.array([(arr[:,i]+arr[:,i+1])/2 for i in range(col-1)])
-    return colAverArr.T # column averaged array
+    colAverArr = np.array([(arr[:,i]+arr[:,i+1])/2 for i in range(col-1)]).T
+    return colAverArr # column averaged array
+
 def Aver2row(arr): # Average to row side
     row = arr.shape[0] # Number of rows(time step)
     arrInv = arr.T
     rowAverArr = np.array([(arrInv[:,i]+arrInv[:,i+1])/2 for i in range(row-1)])
     return rowAverArr # row averaged array
+
 
 # Unit change 
 d2h = 24
@@ -105,6 +113,7 @@ J2MJ = 1/10**6
 J2kJ = 1/10**3
 kJ2J = 10**3
 
+
 # Time variable
 dt = 10 #[s] 
 PST = 120 #PS:Pre Simulation[h]
@@ -118,31 +127,27 @@ dt_lst_hour = dt_lst_sec*s2h; #hour
 N_PST = int(PST*h2s/dt) # Number of pre-simulation time steps
 N_EST = int(EST*h2s/dt) # Number of total simulation time steps
 
+
 # Calculation condition
 T_init = D2K(20) 
 LBC, RBC = np.zeros((Nt+1,1)), np.zeros((Nt+1,1)) #Left boundary condition, Right boundary condition
 LBC[:,0] = np.array([(D2K(20 + 10*(math.sin(2*math.pi*n/d2h)))) for n in dt_lst_hour]) #Left boundary condition
-RBC[:,0] = np.array([(D2K(20)) for _ in dt_lst_hour]) #Right boundary condition
+RBC[:,0] = np.array([(D2K(20)) for _ in dt_lst_hour]) # Right boundary condition
 T0 = LBC.copy() #Environment temperature
+
 
 # System length [m]
 L_arr = np.array([0.05,0.1,0.2])
-NL = len(L_arr) #Number of length
+NL = len(L_arr) # Number of length
+
 
 # Volumetric Heat capcity [J/m^3K] (x-coordinate)
-C_arr = np.concatenate((np.arange(1,10,1),
-                        np.arange(10,100,10),
-                        np.arange(100,1000,100),
-                        np.arange(1000,10000+1000,1000)),
-                        axis=0)*kJ2J #Double
+C_arr = np.arange(1000,10000+1000,1000)*kJ2J #Double
 NC = len(C_arr) #Number of volumetric heat capacity
 
+
 # System thermal conductivity [W/mK] (y-coordinate)
-k_arr = np.concatenate((np.arange(0.01,0.1,0.01),
-                        np.arange(0.1,1,0.1),
-                        np.arange(1,10,1),
-                        np.arange(10,100,10),
-                        np.arange(100,1000+100,100)), axis=0) #Double
+k_arr = np.concatenate((np.arange(0.01,1,1),np.arange(10,100,10),np.arange(100,1000,100))) #Double
 Nk = len(k_arr) 
 
 
@@ -154,11 +159,11 @@ x_pos, y_pos = np.meshgrid(x, y)
 # Run
 for Lidx in tqdm(range(NL)): #System length(x axis)
     PEMatrix = np.zeros((Nk,NC))
-    FileName = f"kCError {np.round(L_arr[Lidx]*m2cm,1)} cm (log scale).csv"
-    for kidx in tqdm(range(Nk)): #ThermalDiffusivity(y axis)
-        for Cidx in range(NC): #L(x axis)
+    FileName = f"kCError {int(L_arr[Lidx]*m2cm)} cm.csv"
+    for kidx in tqdm(range(Nk)): #Thermal conductivity (y axis)
+        for Cidx in range(NC): #Volumetric heat capacity (x axis)
             # Define the thermal network
-            Layer = SetLayer(L = L_arr[Lidx], 
+            Layer = SetLayer(L = 0.1, 
                             dx = 0.01,
                             k=k_arr[kidx],
                             C=C_arr[Cidx],
@@ -264,12 +269,3 @@ for Lidx in tqdm(range(NL)): #System length(x axis)
             PEMatrix[kidx,Cidx] = Error #Save in dataframe
     arr2df(PEMatrix).to_csv(f"{FileName}", index=False)
 
-k_arr = np.linspace(1,100,100)
-C_arr = np.linspace(1,100,100)
-X,Y = np.meshgrid(k_arr, C_arr)
-Z = X/Y
-arr2df(X)
-arr2df(Y)
-arr2df(Z)
-plt.imshow(Z)
-plt.contour(X,Y,Z)

@@ -32,7 +32,8 @@ cm2m = 1/100
 
 # read the csv file
 Z = pd.read_csv("PercentageError.csv") # read the csv file
-Z = gaussian_filter(Z, sigma=1)
+Z = gaussian_filter(Z, sigma=0.6)
+
 
 # figure settings
 min_L = 2
@@ -45,6 +46,7 @@ alpha_int = 0.2
 
 norm1 = mcolors.Normalize(vmin = 0, vmax = 90)
 
+
 # figure settings
 nrow = 1
 ncol = 1
@@ -53,12 +55,17 @@ nfigs = nrow*ncol
 x = np.linspace(min_L,max_L,Z.shape[0])
 y = np.linspace(min_alpha,max_alpha,Z.shape[1])
 
+X,Y = np.meshgrid(x, y)
+
+
 # 2D interpolation
-f = interp2d(x, y, Z, kind='cubic')
+f = interp2d(x, y, Z, kind='quintic')
+
+
 
 # x, y grid 
-x1 = np.linspace(x.min(), x.max(), 75)
-y1 = np.linspace(y.min(), y.max(), 75)
+x1 = np.linspace(x.min(), x.max(), 100)
+y1 = np.linspace(y.min(), y.max(), 100)
 
 X1,Y1 = np.meshgrid(x1, y1)
 
@@ -78,6 +85,7 @@ ymin = [0.2]*nfigs
 ymax = [5]*nfigs 
 yint = [alpha_int]*nfigs
 ymar = [0]*nfigs # yint[i]/6
+
 
 # figure settings 
 for ridx in range(nrow):
@@ -122,28 +130,28 @@ for ridx in range(nrow):
         #ax[ridx,cidx].annotate(subplot_idx, xy=(.01, 1.03), xycoords='axes fraction',
             #horizontalalignment='left', verticalalignment='top', fontsize=fs) 
                  
+        # contour
+        contour_levels = [int(5)]+ [int(10*(i+1)) for i in range(8)]
+        contour = ax[ridx,cidx].contour(X1, Y1, Z1, levels=contour_levels, colors='0.1', linewidths=0.75,)
+        # contour = ax[ridx,cidx].contour(X, Y, Z, levels=contour_levels, colors='0.1', linewidths=0.75,)
+        ax[ridx,cidx].clabel(contour, fontsize=fs-2, fmt = '%1.0f')
+        
         # spine line width  
         for k in ['top','bottom','left','right']:
                 ax[ridx,cidx].spines[k].set_visible(True)
                 ax[ridx,cidx].spines[k].set_linewidth(0.5)
                 ax[ridx,cidx].spines[k].set_color('k')         
 
-# 등고선 그리기
-contour_levels = [int(5)]+ [int(10*(i+1)) for i in range(8)]
-contour = plt.contour(X1, Y1, Z1, levels=contour_levels, colors='0.1', linewidths=0.75,)
-plt.clabel(contour, fontsize=fs-2, fmt = '%1.0f')
-plt.tight_layout(pad = 1.7)
-fig.subplots_adjust(right=0.85, bottom=0.12) # make space for additional colorbar
+        # Addtinal space for colorbar
+        fig.subplots_adjust(right=0.85, bottom=0.12) # make space for additional colorbar
 
-# colorbar
+# colorbar ditance and size
 cbar_width =  0.015 #vertical  
 cbar_height = 0.015 #horizontal  
 cbar_dist_v = 0.085; # vertical colorbar distance from bbox edge
 cbar_dist_h = 0.028; # horizontal colorbar distance from bbox edge
-# blarblar
-asdf = "cnrkgoTe"
-# horizontal colorbars 
-# colorbar1 temperature 
+
+# colorbar 
 bbox1 = ax[0,0].get_position() # get the normalized axis original position 
 cb_ax1 = fig.add_axes([bbox1.x1+cbar_dist_h, bbox1.y0, cbar_width, bbox1.y1-bbox1.y0]) #[x_origin, y_origin, width, height]
 cbar1  = fig.colorbar(ef1, cax=cb_ax1, ax=ax[0,0], orientation='vertical') 

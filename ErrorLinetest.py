@@ -15,7 +15,7 @@ J2MJ = 1e-6
 xmax = 10*MJ2J # Volumetric heat capacity [MJ/m3K]
 xmin = 0.01*MJ2J
 
-ymax = 1000 # Thermal conductivity [W/mK]
+ymax = 1 # Thermal conductivity [W/mK]
 ymin = 0.01
 
 x = np.linspace(xmin, xmax, 10)

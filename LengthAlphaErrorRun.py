@@ -143,6 +143,7 @@ x = L
 y = alpha
 x_pos, y_pos = np.meshgrid(x, y)
 PercentageError = np.zeros((Nalpha,NL))
+
 # Run
 for alpha_idx in tqdm(range(Nalpha)): #ThermalDiffusivity(y axis)
     # print(f"Thermal diffusivity : {alpha[alpha_idx]}")

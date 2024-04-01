@@ -141,7 +141,8 @@ L_arr = np.array([0.1])
 NL = len(L_arr) # Number of length
 
 # Volumetric Heat capcity [J/m^3K] (x-coordinate)
-C_arr = np.linspace(10**6,5*10**6,41)
+C_arr = np.linspace(3*10**6,4*10**6,10,endpoint=False)
+C_arr
 NC = len(C_arr) 
 # System thermal conductivity [W/mK] (y-coordinate)
 k_arr = np.linspace(0.01,100,10000)
@@ -155,7 +156,7 @@ x_pos, y_pos = np.meshgrid(x, y)
 # Run
 for Lidx in range(NL): #System length(x axis)
     PEMatrix = np.zeros((Nk,NC))
-    FileName = f"kCError {int(L_arr[Lidx]*m2cm)} cm.csv"
+    FileName = f"kCError3 {int(L_arr[Lidx]*m2cm)} cm.csv"
     for Cidx in tqdm(range(NC)): #Volumetric heat capacity (x axis)
         for kidx in range(Nk): #Thermal conductivity (y axis)
             # Define the thermal network

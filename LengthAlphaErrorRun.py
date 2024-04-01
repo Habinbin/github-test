@@ -254,42 +254,7 @@ for alpha_idx in tqdm(range(Nalpha)): #ThermalDiffusivity(y axis)
         
         # Percentage error
         # print(f"Length : {np.round(L[Lidx]*m2cm,1)} cm")
-        Error = np.round(abs((U_Xc-D_Xc)/U_Xc)*100,1) #Exergy consumption percentage error
+        Error = abs((U_Xc-D_Xc)/U_Xc)*100 #Exergy consumption percentage error
         # print(f"PercentageError: {Error}%")
         PercentageError[alpha_idx,Lidx] = Error #Save in dataframe
 arr2df(PercentageError).to_csv(f"{FileName}", index=False)
-
-    # Data frame to csv         
-        # DF_T_L.to_csv(f"{file_path}/T_L.csv", index = False)
-        # DF_T_R.to_csv(f"{file_path}/T_R.csv", index = False)
-        # DF_T.to_csv(f"{file_path}/T.csv", index = False)        
-        
-        # DF_q_in.to_csv(f"{file_path}/q_in.csv", index = False) 
-        # DF_q_out.to_csv(f"{file_path}/q_out.csv", index = False)
-        # DF_q.to_csv(f"{file_path}/q.csv", index = False)  
-
-        # DF_Carneff.to_csv(f"{file_path}/Carneff.csv", index = False)
-
-        # DF_U_CXifR.to_csv(f"{file_path}/U_CXifR.csv", index = False)
-        # DF_U_CXcR.to_csv(f"{file_path}/U_CXcR.csv", index = False)
-        # DF_U_CXstR.to_csv(f"{file_path}/U_CXstR.csv", index = False)
-        # DF_U_CXofR.to_csv(f"{file_path}/U_CXofR.csv", index = False)
-        # DF_U_CXst.to_csv(f"{file_path}/U_CXst.csv", index = False)
-
-        # DF_D_XifR.to_csv(f"{file_path}/D_XifR.csv", index = False)
-        # DF_D_XcR.to_csv(f"{file_path}/D_XcR.csv", index = False)
-        # DF_D_XofR.to_csv(f"{file_path}/D_XofR.csv", index = False)
-
-        # Save to Excel
-        # if TD_idx in [0.5*TDUnit,2*TDUnit,3.5*TDUnit,5*TDUnit] and Lidx in [0.05,0.2,0.35,0.50]: 
-        #     with pd.ExcelWriter(f'alpha={TD_idx}/DF_U_XcR.xlsx') as writer: #Distinguish file using TD index
-        #         DF_U_XcR.to_excel(writer, sheet_name=f'{Lidx} cm', index=False) #Distinguish sheet using the L index
-        #     with pd.ExcelWriter(f'alpha={TD_idx}/DF_D_Xc.xlsx') as writer: #Distinguish file using TD index
-        #         DF_D_Xc.to_excel(writer, sheet_name=f'{Lidx} cm', index=False) #Distinguish sheet using the L index
-        #     with pd.ExcelWriter(f'alpha={TD_idx}/DF_T.xlsx') as writer: #Distinguish file using TD index
-        #         DF_T.to_excel(writer, sheet_name=f'{Lidx} cm', index=False) #Distinguish sheet using the L index
-        #     with pd.ExcelWriter(f'alpha={TD_idx}/DF_q.xlsx') as writer: #Distinguish file using TD index
-        #         DF_q.to_excel(writer, sheet_name=f'{Lidx} cm', index=False) #Distinguish sheet using the L index
-        # else:
-        #     pass
-

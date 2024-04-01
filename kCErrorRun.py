@@ -137,17 +137,15 @@ T0 = LBC.copy() #Environment temperature
 
 
 # System length [m]
-L_arr = np.array([0.05])
+L_arr = np.array([0.1])
 NL = len(L_arr) # Number of length
 
 # Volumetric Heat capcity [J/m^3K] (x-coordinate)
-C_arr = np.linspace(10**4,2*10**6,10) #Double
-NC = len(C_arr) #Number of volumetric heat capacity
- 
+C_arr = np.linspace(10**6,5*10**6,41)
+NC = len(C_arr) 
 # System thermal conductivity [W/mK] (y-coordinate)
-k_arr = np.linspace(0.01,1,10) #Double
+k_arr = np.linspace(0.01,100,10000)
 Nk = len(k_arr) 
-
 
 # DataFrame to save
 x = C_arr
@@ -155,11 +153,11 @@ y = k_arr
 x_pos, y_pos = np.meshgrid(x, y)
 
 # Run
-for Lidx in tqdm(range(NL)): #System length(x axis)
+for Lidx in range(NL): #System length(x axis)
     PEMatrix = np.zeros((Nk,NC))
     FileName = f"kCError {int(L_arr[Lidx]*m2cm)} cm.csv"
-    for kidx in tqdm(range(Nk)): #Thermal conductivity (y axis)
-        for Cidx in range(NC): #Volumetric heat capacity (x axis)
+    for Cidx in tqdm(range(NC)): #Volumetric heat capacity (x axis)
+        for kidx in range(Nk): #Thermal conductivity (y axis)
             # Define the thermal network
             Layer = SetLayer(L = L_arr[Lidx], 
                             dx = 0.01,
@@ -257,13 +255,12 @@ for Lidx in tqdm(range(NL)): #System length(x axis)
             U_CXofR = U_CXofR[N_PST:,:]
             U_CXst = U_CXst[N_PST:,:]
 
-            D_XifR = D_XifR[N_PST:N_EST-1]
-            D_XcR = D_XcR[N_PST:N_EST-1]
-            D_Xc = np.sum(D_XcR,axis=0)*dt #Time integrated exergy consumption
+            D_XifR = D_XifR[N_PST:N_EST-1] 
+            D_XcR = D_XcR[N_PST:N_EST-1] 
+            D_Xc = np.sum(D_XcR,axis=0)*dt 
             D_XofR = D_XofR[N_PST:N_EST-1]
 
             # Percentage error
-            Error = np.round(abs((U_Xc-D_Xc)/U_Xc)*100,3) #Exergy consumption percentage error
+            Error = abs((U_Xc-D_Xc)/U_Xc)*100 #Exergy consumption percentage error
             PEMatrix[kidx,Cidx] = Error #Save in dataframe
     arr2df(PEMatrix).to_csv(f"{FileName}", index=False)
-

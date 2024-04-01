@@ -13,6 +13,9 @@ warnings.filterwarnings("ignore")
 def cm2in(cm):
     return cm/2.54
 
+def arr2df(arr):
+    return pd.DataFrame(arr)
+
 # font
 subplot_no = list(map(chr,range(97,123)))
 
@@ -29,19 +32,72 @@ hour_to_min = 60
 hour_to_sec = 3600
 min_to_sec = 60  
 cm2m = 1/100
+MJ2J = 10**6
+
 
 # read the csv file
-Z1 = pd.read_csv("kCError 5 cm.csv") # read the csv file
-Z2 = pd.read_csv("kCError 10.0 cm (log scale).csv") # read the csv file
-Z3 = pd.read_csv("kCError 20.0 cm (log scale).csv") # read the csv file
+Z = np.array(pd.read_csv("kCError 5 cm 50x50(log).csv")) # read the csv file
+Z = np.array(pd.read_csv("kCError 5 cm.csv"))
+Z1 = pd.read_csv("kCError 5 cm 50x50(log).csv") # read the csv file
+Z2 = Z1.iloc[:10,:10]     # k:0.01 , C:10^4
+Z3 = Z1.iloc[10:20,10:20] # k:0.1  , C:10^5
+Z4 = Z1.iloc[20:30,20:30] # k:1    , C:10^6
+# # Interpolated Z
+# row_ip = [10,100,1000,10000]
+# col_ip = [10,100,1000]
+
+
+# # Volumetric Heat capcity [J/m^3K] (x-coordinate)
+# C_arr = np.concatenate((np.linspace(0.01,0.1,9,endpoint=False)*MJ2J 
+# ,np.linspace(0.01,0.1,9,endpoint=False)*10*MJ2J 
+# ,np.linspace(0.01,0.1,10)*100*MJ2J 
+# )) 
+# NC = len(C_arr) 
+# C_arr[9]
+
+# # System thermal conductivity [W/mK] (y-coordinate)
+# k_arr = np.concatenate((np.linspace(0.01,0.1,9,endpoint=False) 
+# ,np.linspace(0.01,0.1,9,endpoint=False)*10
+# ,np.linspace(0.01,0.1,9,endpoint=False)*100
+# ,np.linspace(0.01,0.1,9,endpoint=False)*1000
+# ,np.linspace(0.01,0.1,10)*10000))
+# Nk = len(k_arr) 
+
+# num_rows = 4
+# num_cols = 3
+# array_list = [[None] * num_cols for _ in range(num_rows)]
+# array_list
+
+# for ridx in row_ip:
+#     for cidx in col_ip:
+#         i = row_ip.index(ridx)
+#         j = col_ip.index(cidx) 
+#         Zij = Z[10*i:10*(i+1),10*j:10*(j+1)] 
+
+#         x = np.linspace(10**(j+4),10**(j+5),Zij.shape[1])
+#         y = np.linspace(0.01*10**(i),0.01*10**(i+1),Zij.shape[0])
+
+#         X,Y = np.meshgrid(x, y)
+#         f = interp2d(x, y, Zij, kind='linear')
+
+#         x_dens = np.linspace(x.min(), x.max(), cidx)
+#         y_dens = np.linspace(y.min(), y.max(), ridx)
+
+#         X_dens,Y_dens = np.meshgrid(x_dens, y_dens)
+
+#         Zij_dens = f(x_dens,y_dens)
+#         array_list[i][j]=Zij_dens
+
+# result_array = np.concatenate([np.concatenate(sublist, axis=1) for sublist in array_list], axis=0)
+# arr2df(result_array)
+
 
 # figure settings
 min_k = 0.01
-max_k = 0.02
+max_k = 1000
 
 min_C = 10**4
-max_C = 2*10**4
-
+max_C = 10**7
 
 norm1 = mcolors.Normalize(vmin = 0, vmax = 90)
 
@@ -68,7 +124,7 @@ for ridx in range(nrow):
     for cidx in range(ncol):
         idx = ridx*ncol + cidx
 
-        Z = Z1 #Z_lst[idx]
+        Z = Z #Z_lst[idx]
 
         x = np.linspace(min_C,max_C,Z.shape[1])
         y = np.linspace(min_k,max_k,Z.shape[0])
@@ -79,17 +135,18 @@ for ridx in range(nrow):
         f = interp2d(x, y, Z, kind='linear')
 
         # x, y grid 
-        # x_dens = np.linspace(x.min(), x.max(), 75)
-        # y_dens = np.linspace(y.min(), y.max(), 75)
+        x_dens = np.linspace(x.min(), x.max(), 1000)
+        y_dens = np.linspace(y.min(), y.max(), 10000)
 
-        # X_dens,Y_dens = np.meshgrid(x_dens, y_dens)
+        X_dens,Y_dens = np.meshgrid(x_dens, y_dens)
 
-        # Z_dens =f(x_dens,y_dens)
+        Z_dens =f(x_dens,y_dens)
 
-        ef1 = ax[0,0].plot
+        ef1 = ax[0,0].imshow(Z, aspect='auto', extent=[min_C,max_C,max_k,min_k], 
+                            cmap='Blues9', norm=norm1,) # Error field  interpolation = "spline16" 
 
-        ax[ridx,cidx].set_xlabel('System length [cm]', fontsize=FS_label,labelpad=10)
-        ax[0,0].set_ylabel('Thermal diffusivity [10$^{-6}$ m$^2$/s]', fontsize=FS_label,labelpad=10)
+        ax[ridx,cidx].set_xlabel('Volumetric heat capacity [J/m3K]', fontsize=FS_label,labelpad=10)
+        ax[0,0].set_ylabel('Thermal conductivity [10$^{-6}$ m$^2$/s]', fontsize=FS_label,labelpad=10)
 
         ax[ridx,cidx].tick_params(direction='in', labelsize=Axis_FS, which='major', length=2.5, width=0.5 ,  right=True,top=True ,pad=6)
         ax[ridx,cidx].tick_params(direction='in', labelsize=Axis_FS, which='minor', length=1.25, width=0.25, right=True,top=True ,pad=6)
@@ -107,17 +164,17 @@ for ridx in range(nrow):
         # ax[ridx,cidx].set_yticks([round(ytick[i],2) for i in range(len(ytick))])
         
         # replace xtick string 
-        xtick_list = ax[ridx,cidx].get_xticks().tolist()
-        ax[ridx,cidx].set_xticklabels(xtick_list)
-        ytick_list = ax[ridx,cidx].get_yticks().tolist()
-        ax[ridx,cidx].set_yticklabels(ytick_list)
+        # xtick_list = ax[ridx,cidx].get_xticks().tolist()
+        # ax[ridx,cidx].set_xticklabels(xtick_list)
+        # ytick_list = ax[ridx,cidx].get_yticks().tolist()
+        # ax[ridx,cidx].set_yticklabels(ytick_list)
         
         # number of minor ticks
-        ax[ridx,cidx].xaxis.set_minor_locator(ticker.AutoMinorLocator(4))
-        ax[ridx,cidx].yaxis.set_minor_locator(ticker.AutoMinorLocator(4))
+        ax[ridx,cidx].xaxis.set_minor_locator(ticker.AutoMinorLocator(5))
+        ax[ridx,cidx].yaxis.set_minor_locator(ticker.AutoMinorLocator(5))
 
         # grid
-        ax[ridx,cidx].grid(True, axis='both', linestyle=':', linewidth=0.25, color='0.25'); 
+        ax[ridx,cidx].grid(True, axis='both', linestyle=':', linewidth=0.5, color='k'); 
         # subplot
         # subplot_idx = '('+subplot_no[idx]+') ' + case_name[idx] #(a) + Internal
         #ax[ridx,cidx].annotate(subplot_idx, xy=(.01, 1.03), xycoords='axes fraction',
@@ -126,18 +183,18 @@ for ridx in range(nrow):
         # scale
         ax[ridx,cidx].set_xscale('log')
         ax[ridx,cidx].set_yscale('log')
+
+        # 등고선 그리기
+        contour_levels = np.array([int(5)]+ [int(10*(i+1)) for i in range(8)]) # couter1
+        # contour = ax[ridx,cidx].contour(X_dens, Y_dens, Z_dens, levels=contour_levels, colors='0.1', linewidths=0.75, linestyles='-') # denser version
+        contour = ax[ridx,cidx].contour(X, Y, Z, levels=contour_levels, colors='0.1', linewidths=0.75, linestyles='-') # normal version
+        ax[ridx,cidx].clabel(contour, fontsize=fs-2, fmt = '%1.0f')
                  
         # spine line width  
         for k in ['top','bottom','left','right']:
                 ax[ridx,cidx].spines[k].set_visible(True)
                 ax[ridx,cidx].spines[k].set_linewidth(0.5)
                 ax[ridx,cidx].spines[k].set_color('k')         
-
-# 등고선 그리기
-contour_levels = [int(5)]+ [int(10*(i+1)) for i in range(8)]
-# contour = plt.contour(X_dens, Y_dens, Z_dens, levels=contour_levels, colors='0.1', linewidths=0.75, linestyles='-')
-contour = plt.contour(X, Y, Z, levels=contour_levels, colors='0.1', linewidths=0.75, linestyles='-')
-plt.clabel(contour, fontsize=fs-2, fmt = '%1.0f')
 plt.tight_layout(pad = 1.7)
 fig.subplots_adjust(right=0.85, bottom=0.12) # make space for additional colorbar
 
@@ -162,3 +219,6 @@ figname = 'Fig2 Percentage error Comparison'
 # plt.savefig(figname+'.svg', dpi=600)
 # plt.savefig(figname+'.png', dpi=600)
 # plt.savefig(figname+'.pdf', dpi=600)
+
+
+
